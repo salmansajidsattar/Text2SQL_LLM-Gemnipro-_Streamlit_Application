@@ -1,0 +1,22 @@
+import pandas as pd
+import sqlite3
+
+url = 'https://en.wikipedia.org/wiki/List_of_highest-grossing_superhero_films'
+def get_data():
+    df = pd.read_html(url)
+    print(len(df))
+    print(df[0].head())
+    movies_df = df[0].copy().drop(['Ref','Superhero(es)','Rank'],axis=1)
+    movies_df['Worldwide gross'] = movies_df['Worldwide gross']\
+                        .apply(lambda x : x.replace('$','').replace(',',''))
+    # movies_df['Worldwide gross'] = (movies_df['Worldwide gross'].astype('int')/1000000).round(2)
+    movies_df.columns = ['Name','Revenue','Year','Universe']
+    print(movies_df.shape)
+    movies_df.head()
+    movies_df.to_csv('Movie.csv',index=False)
+    ## Connect to SQlite
+    connection=sqlite3.connect("movie.db")
+    print(connection)
+    movies_df.to_sql('Movie',connection)
+if __name__=="__main__":
+    get_data()
